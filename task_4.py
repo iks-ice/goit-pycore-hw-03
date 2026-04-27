@@ -1,12 +1,13 @@
-from datetime import datetime
-
-date_format = "%Y.%m.%d"
+from datetime import datetime, timedelta
 
 # from_date додад для імітації різних дат відліку,
 # наприклад, щоб перевірити чи попадають в список дні народження
 # з наступного року
 
 def get_upcoming_birthdays(users_list, from_date = None):
+
+    date_format = "%Y.%m.%d"
+    weekdays = (5, 6)
 
     if not isinstance(users_list, list):
         return None
@@ -31,12 +32,11 @@ def get_upcoming_birthdays(users_list, from_date = None):
         days_left = (congrats_date - today_date).days
         
         if -1 < days_left < 8:
-            
-            if congrats_date.weekday() == 5:
-                congrats_date = congrats_date.replace(day=congrats_date.day + 2)
 
-            if congrats_date.weekday() == 6:
-                congrats_date = congrats_date.replace(day=congrats_date.day + 1)
+            weekday = congrats_date.weekday()
+
+            if weekday in weekdays:
+                congrats_date = congrats_date + timedelta(days = 7 - weekday)
 
             bd_list.append({
                 "name": user["name"],
