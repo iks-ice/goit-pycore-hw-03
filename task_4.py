@@ -1,54 +1,66 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
+date_format = "%Y.%m.%d"
 
-def get_upcoming_birthdays(users_list, from_date=None):
-    
+# from_date додад для імітації різних дат відліку,
+# наприклад, щоб перевірити чи попадають в список дні народження
+# з наступного року
+
+def get_upcoming_birthdays(users_list, from_date = None):
+
     if not isinstance(users_list, list):
         return None
 
-    date_format = "%Y.%m.%d"
-    
-    if from_date:
-        today_date = datetime.strptime(from_date, date_format).date()
-    else:
-        today_date = datetime.today().date()
+    today_date = datetime.today().date()
 
-    upcoming_birthdays = []
+    if from_date is not None:
+        today_date = datetime.strptime(from_date, date_format).date()
+    
+    current_year = today_date.year
+
+    bd_list = []
 
     for user in users_list:
-        
-        original_birthday = datetime.strptime(user["birthday"], date_format).date()
-        birthday_this_year = original_birthday.replace(year=today_date.year)
+        birth_date = datetime.strptime(user["birthday"], date_format).date()
 
-        
-        if birthday_this_year < today_date:
-            birthday_this_year = birthday_this_year.replace(year=today_date.year + 1)
+        congrats_date = birth_date.replace(year = current_year)
 
-        days_until = (birthday_this_year - today_date).days
+        if congrats_date < today_date:
+            congrats_date = congrats_date.replace(year = current_year + 1)
+
+        days_left = (congrats_date - today_date).days
         
-        if 0 <= days_until <= 7:
-            congratulation_date = birthday_this_year
+        if -1 < days_left < 8:
             
-            
-            if congratulation_date.weekday() == 5:
-                congratulation_date += timedelta(days=2)
-            elif congratulation_date.weekday() == 6:
-                congratulation_date += timedelta(days=1)
+            if congrats_date.weekday() == 5:
+                congrats_date = congrats_date.replace(day=congrats_date.day + 2)
 
-            upcoming_birthdays.append({
+            if congrats_date.weekday() == 6:
+                congrats_date = congrats_date.replace(day=congrats_date.day + 1)
+
+            bd_list.append({
                 "name": user["name"],
-                "congratulation_date": congratulation_date.strftime(date_format)
-            })
+                "congratulate_date": datetime.strftime(congrats_date, date_format)
+            })    
 
-    return upcoming_birthdays
+    return bd_list
 
 users = [
-    {"name": "John Doe", "birthday": "1985.04.26"},
-    {"name": "John Doe", "birthday": "1985.04.27"},
+    {"name": "John Doe", "birthday": "1985.12.28"},
     {"name": "John Doe", "birthday": "1985.12.29"},
-    {"name": "John Doe", "birthday": "1985.05.01"},
-    {"name": "John Doe", "birthday": "1985.05.02"},
-    {"name": "John Doe", "birthday": "1985.05.03"},
+    {"name": "John Doe", "birthday": "1985.12.30"},
+    {"name": "John Doe", "birthday": "1985.12.31"},
+    {"name": "Jane Smith", "birthday": "1990.01.01"},
+    {"name": "Jane Smith", "birthday": "1990.01.02"},
+    {"name": "Jane Smith", "birthday": "1990.01.03"},
+    {"name": "Jane Smith", "birthday": "1990.01.04"},
+    {"name": "Jane Smith", "birthday": "1990.01.05"},
+    {"name": "Jane Smith", "birthday": "1990.01.06"},
+    {"name": "Jane Smith", "birthday": "1990.01.07"},
+    {"name": "Jane ", "birthday": "1990.05.08"},
+    {"name": " Smith", "birthday": "1990.04.08"},
+    {"name": " Smith", "birthday": "1990.04.28"},
+    {"name": " Smith", "birthday": "1990.05.04"}
 ]
-res = get_upcoming_birthdays(users)
+res = get_upcoming_birthdays(users, "2024.12.27")
 print(res)
